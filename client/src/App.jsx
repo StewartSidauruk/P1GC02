@@ -1,7 +1,25 @@
 import "./App.css";
-import { FiEdit, FiTrash2 } from "react-icons/fi";
+import TodoCard from "./components/TodoCard";
+import { useEffect, useState } from "react";
 
 function App() {
+  const [todos, setTodos] = useState([]);
+  const [task, setTask] = useState("");
+  const [status, setStatus] = useState("OPEN");
+
+  async function fetchTodos() {
+    try {
+      const response = await fetch("http://localhost:3000/todos", {
+        method: "GET",
+      });
+      const result = await response.json();
+      console.log(result);
+      setTodos(result);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
   return (
     <div className="min-h-screen bg-black">
       <div className="navbar">
@@ -33,38 +51,13 @@ function App() {
         </div>
 
         <div className="space-y-4 w-[370px]">
-          <div className="flex justify-between items-start bg-[#1f1f1f] p-3 rounded border border-gray-700">
-            <div className="flex items-start gap-2 w-full">
-              <input
-                type="checkbox"
-                className="mt-1 form-checkbox text-lime-500"
-              />
-              <span className="break-words text-white">
-                taks kerjanya berat banget tapi saya tetap lanjut
-                meskipun sudah larut malam dan tidak ada kopi lagi di kosan
-              </span>
-            </div>
-            <div className="flex gap-3 text-gray-400 ml-2 mt-1">
-              <FiEdit className="cursor-pointer hover:text-white" />
-              <FiTrash2 className="cursor-pointer hover:text-red-500" />
-            </div>
-          </div>
-
-          <div className="flex justify-between items-start bg-[#1f1f1f] p-3 rounded border border-gray-700">
-            <div className="flex items-start gap-2 w-full">
-              <input
-                type="checkbox"
-                className="mt-1 form-checkbox text-lime-500"
-              />
-              <span className="break-words text-white">
-                mantap
-              </span>
-            </div>
-            <div className="flex gap-3 text-gray-400 ml-2 mt-1">
-              <FiEdit className="cursor-pointer hover:text-white" />
-              <FiTrash2 className="cursor-pointer hover:text-red-500" />
-            </div>
-          </div>
+          {todos.map((t) => (
+            <TodoCard
+              key={t.id}
+              task={t.task}
+              status={t.status}
+            />
+          ))}
         </div>
       </div>
     </div>
