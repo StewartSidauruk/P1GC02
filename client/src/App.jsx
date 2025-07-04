@@ -1,6 +1,8 @@
 import "./App.css";
 import TodoCard from "./components/TodoCard";
 import { useEffect, useState } from "react";
+import Swal from "sweetalert2";
+import 'sweetalert2/dist/sweetalert2.min.css'; 
 
 function App() {
   const [todos, setTodos] = useState([]);
@@ -20,9 +22,61 @@ function App() {
     }
   }
 
+  async function createTodo(event) {
+    event.preventDefault();
+    const newTodo = {
+      id: String(+todos.at(-1).id + 1) ?? "1",
+      task: task,
+      status: status,
+    };
+    await fetch("http://localhost:3000/todos", {
+      method: "POST",
+      body: JSON.stringify(newTodo),
+    });
+
+    setTodos([...todos, newTodo]);
+    setTask("");
+  }
+
+  async function deleteTodo(id) {
+    try {
+      const result = await Swal.fire({
+        title: "Are you sure?",
+        text: "You won't be able to revert this!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Yes, delete it!",
+      });
+
+      if (result.isConfirmed) {
+        await fetch(`http://localhost:3000/todos/${id}`, {
+          method: "DELETE",
+        });
+
+        Swal.fire({
+          icon: "success",
+          title: "Deleted!",
+          text: "Your task has been successfully deleted.",
+        });
+
+        fetchTodos();
+      }
+    } catch (error) {
+      console.error("Deletion failed:", error);
+      Swal.fire({
+        icon: "error",
+        title: "Oops...",
+        text: "Failed to delete the task.",
+      });
+    }
+  }
+
   useEffect(() => {
     fetchTodos();
   }, []);
+  
 
   return (
     <div className="min-h-screen bg-black">
@@ -44,14 +98,18 @@ function App() {
         </div>
 
         <div className="flex gap-2 mb-6">
-          <input
-            type="text"
-            placeholder="Write your task here..."
-            className="w-80 p-2 rounded bg-gray-800 text-white placeholder-gray-400 outline-none"
-          />
-          <button className="w-10 bg-lime-600 p-2 rounded hover:bg-lime-700">
-            +
-          </button>
+          <form onSubmit={createTodo}>
+            <input
+              type="text"
+              placeholder="Write your task here..."
+              className="w-80 p-2 rounded bg-gray-800 text-white placeholder-gray-400 outline-none"
+              onChange={(e) => setTask(e.target.value)}
+              value={task}
+            />
+            <button className="w-10 bg-lime-600 p-2 rounded hover:bg-lime-700">
+              +
+            </button>
+          </form>
         </div>
 
         <div className="space-y-4 w-[370px]">
@@ -60,6 +118,7 @@ function App() {
               key={t.id}
               task={t.task}
               status={t.status}
+              onDelete={() => deleteTodo(t.id)}
             />
           ))}
         </div>

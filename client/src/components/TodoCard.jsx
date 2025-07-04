@@ -1,6 +1,6 @@
 import { FiEdit, FiTrash2 } from "react-icons/fi";
 
-export default function TodoCard({task}){
+export default function TodoCard({task, onDelete}){
     return (
         <div className="flex justify-between items-start bg-[#1f1f1f] p-3 rounded border border-gray-700">
             <div className="flex items-start gap-2 w-full">
@@ -14,7 +14,7 @@ export default function TodoCard({task}){
             </div>
             <div className="flex gap-3 text-gray-400 ml-2 mt-1">
                 <FiEdit className="cursor-pointer hover:text-white" />
-                <FiTrash2 className="cursor-pointer hover:text-red-500" />
+                <FiTrash2 onClick={onDelete} className="cursor-pointer hover:text-red-500" />
             </div>
         </div>
     );
