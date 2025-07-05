@@ -73,6 +73,27 @@ function App() {
     }
   }
 
+  async function updateTodoStatus(id) {
+    const todoToUpdate = todos.find(todo => todo.id === id);
+    if (!todoToUpdate) return;
+
+    const newStatus = todoToUpdate.status === 'OPEN' ? 'COMPLETED' : 'OPEN';
+
+    try {
+      await fetch(`http://localhost:3000/todos/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: newStatus }),
+      });
+
+      setTodos(todos.map(todo =>
+        todo.id === id ? { ...todo, status: newStatus } : todo
+      ));
+    } catch (error) {
+      console.error("Gagal memperbarui status:", error);
+    }
+  }
+
   useEffect(() => {
     fetchTodos();
   }, []);
@@ -119,6 +140,7 @@ function App() {
               task={t.task}
               status={t.status}
               onDelete={() => deleteTodo(t.id)}
+              onStatusChange={() => updateTodoStatus(t.id)}
             />
           ))}
         </div>
