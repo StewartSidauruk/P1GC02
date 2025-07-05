@@ -24,6 +24,14 @@ function App() {
 
   async function createTodo(event) {
     event.preventDefault();
+    if (!task.trim()) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Tugas Kosong',
+            text: 'Silakan tulis tugas Anda terlebih dahulu.'
+        });
+        return;
+    }
     const newTodo = {
       id: String(+todos.at(-1).id + 1) ?? "1",
       task: task,
@@ -98,6 +106,8 @@ function App() {
     fetchTodos();
   }, []);
   
+  const total = todos.length;
+  const completed = todos.filter(todo => todo.status === 'COMPLETED').length;
 
   return (
     <div className="min-h-screen bg-black">
@@ -113,7 +123,7 @@ function App() {
               <div className="text-lg text-gray-400">Keep it up</div>
             </div>
             <div className="bg-lime-600 w-30 h-30 rounded-full flex items-center justify-center text-4xl font-bold">
-              0/0
+              {completed}/{total}
             </div>
           </div>
         </div>
