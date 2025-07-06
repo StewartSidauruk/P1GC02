@@ -149,7 +149,7 @@ function App() {
         <a className="btn btn-ghost text-3xl">TODO</a>
       </div>
 
-      <div className="flex flex-col items-center justify-center">
+      <div className="flex flex-col items-center justify-center text-white">
         <div>
           <div className="bg-[#1f1f1f] p-4 rounded-lg mb-4 flex justify-between items-center border border-gray-700">
             <div className="mx-10">
