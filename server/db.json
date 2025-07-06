@@ -2,13 +2,13 @@
   "todos": [
     {
       "id": "2",
-      "task": "Swimming",
+      "task": "swimming",
       "status": "OPEN"
     },
     {
       "id": "3",
       "task": "Menontonnnnn",
-      "status": "COMPLETED"
+      "status": "OPEN"
     },
     {
       "id": "4",
@@ -23,6 +23,11 @@
     {
       "id": "6",
       "task": "layang layang",
+      "status": "OPEN"
+    },
+    {
+      "id": "7",
+      "task": "makan",
       "status": "OPEN"
     }
   ]

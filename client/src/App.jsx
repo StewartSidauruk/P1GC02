@@ -2,12 +2,15 @@ import "./App.css";
 import TodoCard from "./components/TodoCard";
 import { useEffect, useState } from "react";
 import Swal from "sweetalert2";
-import 'sweetalert2/dist/sweetalert2.min.css'; 
+import "sweetalert2/dist/sweetalert2.min.css";
 
 function App() {
   const [todos, setTodos] = useState([]);
   const [task, setTask] = useState("");
   const [status, setStatus] = useState("OPEN");
+  const [showModal, setShowModal] = useState(false);
+  const [editTodo, setEditTodo] = useState(null);
+  const [editTask, setEditTask] = useState("");
 
   async function fetchTodos() {
     try {
@@ -25,12 +28,12 @@ function App() {
   async function createTodo(event) {
     event.preventDefault();
     if (!task.trim()) {
-        Swal.fire({
-            icon: 'warning',
-            title: 'Tugas Kosong',
-            text: 'Silakan tulis tugas Anda terlebih dahulu.'
-        });
-        return;
+      Swal.fire({
+        icon: "warning",
+        title: "Tugas Kosong",
+        text: "Silakan tulis tugas Anda terlebih dahulu.",
+      });
+      return;
     }
     const newTodo = {
       id: String(+todos.at(-1).id + 1) ?? "1",
@@ -82,32 +85,63 @@ function App() {
   }
 
   async function updateTodoStatus(id) {
-    const todoToUpdate = todos.find(todo => todo.id === id);
+    const todoToUpdate = todos.find((todo) => todo.id === id);
     if (!todoToUpdate) return;
 
-    const newStatus = todoToUpdate.status === 'OPEN' ? 'COMPLETED' : 'OPEN';
+    const newStatus = todoToUpdate.status === "OPEN" ? "COMPLETED" : "OPEN";
 
     try {
       await fetch(`http://localhost:3000/todos/${id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status: newStatus }),
       });
 
-      setTodos(todos.map(todo =>
-        todo.id === id ? { ...todo, status: newStatus } : todo
-      ));
+      setTodos(
+        todos.map((todo) =>
+          todo.id === id ? { ...todo, status: newStatus } : todo
+        )
+      );
     } catch (error) {
       console.error("Gagal memperbarui status:", error);
     }
   }
 
+  async function submitEditTodo(e) {
+    e.preventDefault();
+    try {
+      await fetch(`http://localhost:3000/todos/${editTodo.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ task: editTask }),
+      });
+
+      Swal.fire({
+        icon: "success",
+        title: "Task has been updated!",
+        showConfirmButton: false,
+        timer: 1500,
+      });
+
+      fetchTodos();
+      setShowModal(false);
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  function openEditModal(todo) {
+    setEditTodo(todo);
+    setEditTask(todo.task);
+    setShowModal(true);
+  }
+
   useEffect(() => {
     fetchTodos();
   }, []);
-  
+
   const total = todos.length;
-  const completed = todos.filter(todo => todo.status === 'COMPLETED').length;
+  const completed = todos.filter((todo) => todo.status === "COMPLETED").length;
 
   return (
     <div className="min-h-screen bg-black">
@@ -128,7 +162,7 @@ function App() {
           </div>
         </div>
 
-        <div className="flex gap-2 mb-6">
+        <div className="flex mb-6">
           <form onSubmit={createTodo}>
             <input
               type="text"
@@ -151,10 +185,42 @@ function App() {
               status={t.status}
               onDelete={() => deleteTodo(t.id)}
               onStatusChange={() => updateTodoStatus(t.id)}
+              onEdit={() => openEditModal(t)}
             />
           ))}
         </div>
       </div>
+      {showModal && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+          <div className="bg-[#1f1f1f] p-6 rounded shadow-lg w-96 border border-gray-700">
+            <h2 className="text-white text-xl mb-4">Edit Task</h2>
+            <form onSubmit={submitEditTodo}>
+              <input
+                type="text"
+                value={editTask}
+                onChange={(e) => setEditTask(e.target.value)}
+                className="w-full p-2 rounded bg-gray-800 text-white placeholder-gray-400 outline-none mb-4"
+                placeholder="Edit your task..."
+              />
+              <div className="flex justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => setShowModal(false)}
+                  className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 bg-lime-600 text-white rounded hover:bg-lime-700"
+                >
+                  Save
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
