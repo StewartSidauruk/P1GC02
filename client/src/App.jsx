@@ -3,6 +3,7 @@ import TodoCard from "./components/TodoCard";
 import { useEffect, useState } from "react";
 import Swal from "sweetalert2";
 import "sweetalert2/dist/sweetalert2.min.css";
+import { motion, AnimatePresence } from "framer-motion";
 
 function App() {
   const [todos, setTodos] = useState([]);
@@ -11,8 +12,30 @@ function App() {
   const [showModal, setShowModal] = useState(false);
   const [editTodo, setEditTodo] = useState(null);
   const [editTask, setEditTask] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
+
+  const LoadingSkeleton = () => (
+    <div className="space-y-4 w-[370px]">
+      {[...Array(3)].map((_, index) => (
+        <div
+          key={index}
+          className="flex justify-between items-center bg-[#1f1f1f] p-4 rounded-lg border border-gray-700 animate-pulse"
+        >
+          <div className="flex items-center gap-3 w-full">
+            <div className="h-5 w-5 bg-gray-700 rounded"></div>
+            <div className="h-4 bg-gray-700 rounded w-3/4"></div>
+          </div>
+          <div className="flex gap-3">
+            <div className="h-5 w-5 bg-gray-700 rounded"></div>
+            <div className="h-5 w-5 bg-gray-700 rounded"></div>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
 
   async function fetchTodos() {
+    setIsLoading(true);
     try {
       const response = await fetch("https://tar-brawny-dance.glitch.me/todos", {
         method: "GET",
@@ -22,6 +45,13 @@ function App() {
       setTodos(result);
     } catch (error) {
       console.log(error);
+      Swal.fire({
+        icon: "error",
+        title: "Gagal Memuat Data",
+        text: "Tidak dapat mengambil daftar tugas dari server.",
+      });
+    } finally {
+      setIsLoading(false);
     }
   }
 
@@ -36,17 +66,25 @@ function App() {
       return;
     }
     const newTodo = {
-      id: String(+todos.at(-1).id + 1) ?? "1",
       task: task,
       status: status,
     };
-    await fetch("https://tar-brawny-dance.glitch.me/todos", {
-      method: "POST",
-      body: JSON.stringify(newTodo),
-    });
+    try {
+      const response = await fetch("https://tar-brawny-dance.glitch.me/todos", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(newTodo),
+      });
 
-    setTodos([...todos, newTodo]);
-    setTask("");
+      const actualNewTodo = await response.json();
+
+      setTodos([...todos, actualNewTodo]);
+      setTask("");
+    } catch (error) {
+      console.error("Gagal membuat todo:", error);
+    }
   }
 
   async function deleteTodo(id) {
@@ -72,7 +110,7 @@ function App() {
           text: "Your task has been successfully deleted.",
         });
 
-        fetchTodos();
+        setTodos(todos.filter((todo) => todo.id !== id));
       }
     } catch (error) {
       console.error("Deletion failed:", error);
@@ -123,7 +161,11 @@ function App() {
         timer: 1500,
       });
 
-      fetchTodos();
+      setTodos(
+        todos.map((todo) =>
+          todo.id === editTodo.id ? { ...todo, task: editTask } : todo
+        )
+      );
       setShowModal(false);
     } catch (error) {
       console.error(error);
@@ -178,16 +220,32 @@ function App() {
         </div>
 
         <div className="space-y-4 w-[370px]">
-          {todos.map((t) => (
-            <TodoCard
-              key={t.id}
-              task={t.task}
-              status={t.status}
-              onDelete={() => deleteTodo(t.id)}
-              onStatusChange={() => updateTodoStatus(t.id)}
-              onEdit={() => openEditModal(t)}
-            />
-          ))}
+          {isLoading ? (
+            <div className="flex justify-center items-center p-10">
+              <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-lime-500"></div>
+            </div>
+          ) : (
+            <AnimatePresence>
+              {todos.map((t) => (
+                <motion.div
+                  key={t.id}
+                  layout
+                  initial={{ opacity: 0, y: -20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, x: -100 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <TodoCard
+                    task={t.task}
+                    status={t.status}
+                    onDelete={() => deleteTodo(t.id)}
+                    onStatusChange={() => updateTodoStatus(t.id)}
+                    onEdit={() => openEditModal(t)}
+                  />
+                </motion.div>
+              ))}
+            </AnimatePresence>
+          )}
         </div>
       </div>
       {showModal && (
