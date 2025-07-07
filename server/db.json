@@ -1,0 +1,34 @@
+{
+  "todos": [
+    {
+      "id": "2",
+      "task": "swimming",
+      "status": "OPEN"
+    },
+    {
+      "id": "3",
+      "task": "Menontonnnnn",
+      "status": "OPEN"
+    },
+    {
+      "id": "4",
+      "task": "belajar",
+      "status": "OPEN"
+    },
+    {
+      "id": "5",
+      "task": "bermain",
+      "status": "OPEN"
+    },
+    {
+      "id": "6",
+      "task": "layang layang",
+      "status": "OPEN"
+    },
+    {
+      "id": "7",
+      "task": "makan",
+      "status": "OPEN"
+    }
+  ]
+}
