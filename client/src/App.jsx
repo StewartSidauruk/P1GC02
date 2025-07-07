@@ -147,6 +147,16 @@ function App() {
 
   async function submitEditTodo(e) {
     e.preventDefault();
+
+    if (!editTask.trim()) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Tugas Kosong',
+        text: 'Tugas tidak boleh kosong. Silakan isi terlebih dahulu.'
+      });
+      return;
+    }
+
     try {
       await fetch(`https://tar-brawny-dance.glitch.me/todos/${editTodo.id}`, {
         method: "PATCH",
