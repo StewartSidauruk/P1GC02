@@ -14,7 +14,7 @@ function App() {
 
   async function fetchTodos() {
     try {
-      const response = await fetch("http://localhost:3000/todos", {
+      const response = await fetch("https://tar-brawny-dance.glitch.me/todos", {
         method: "GET",
       });
       const result = await response.json();
