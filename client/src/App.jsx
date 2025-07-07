@@ -40,7 +40,7 @@ function App() {
       task: task,
       status: status,
     };
-    await fetch("http://localhost:3000/todos", {
+    await fetch("https://tar-brawny-dance.glitch.me/todos", {
       method: "POST",
       body: JSON.stringify(newTodo),
     });
@@ -62,7 +62,7 @@ function App() {
       });
 
       if (result.isConfirmed) {
-        await fetch(`http://localhost:3000/todos/${id}`, {
+        await fetch(`https://tar-brawny-dance.glitch.me/todos/${id}`, {
           method: "DELETE",
         });
 
@@ -91,7 +91,7 @@ function App() {
     const newStatus = todoToUpdate.status === "OPEN" ? "COMPLETED" : "OPEN";
 
     try {
-      await fetch(`http://localhost:3000/todos/${id}`, {
+      await fetch(`https://tar-brawny-dance.glitch.me/todos/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status: newStatus }),
@@ -110,7 +110,7 @@ function App() {
   async function submitEditTodo(e) {
     e.preventDefault();
     try {
-      await fetch(`http://localhost:3000/todos/${editTodo.id}`, {
+      await fetch(`https://tar-brawny-dance.glitch.me/todos/${editTodo.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ task: editTask }),
